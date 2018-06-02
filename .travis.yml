@@ -2,12 +2,10 @@ language: php
 
 php:
   - 5.4
-  - 5.3
-
-#before_script:
-#  - "mkdir -p ~/.composer"
-#  - composer self-update
-#  - composer install
+  - 5.5
+  - 5.6
+  - 7.0
+  - 7.1
 
 script: phpunit --configuration test/phpunit.xml
 
