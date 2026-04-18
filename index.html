@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <!--link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'-->
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+    <link rel="stylesheet" href="api/0.3/highlightjs/github.css">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>SimpleExcel.php by faisalman</title>
+    <script type="text/javascript" src="api/0.3/highlightjs/highlight.pack.js"></script>
+    <script type="text/javascript">
+        hljs.tabReplace = '    ';
+        hljs.initHighlightingOnLoad();
+    </script>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>SimpleExcel.php</h1>
+        <h2>Easily parse / convert / write between any Microsoft Excel XML / CSV / TSV / HTML / JSON / etc formats</h2>
+        <a href="https://github.com/faisalman/simple-excel-php" class="button"><small>View project on</small>GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+        <h2>Dependencies</h2>
+
+<p>PHP &gt;= 5.3</p>
+
+<h2>Installation</h2>
+
+<p>If you're using <a href="http://getcomposer.org">Composer</a> to manage libraries, include <a href="https://packagist.org/packages/faisalman/simple-excel-php">this package</a> in your composer.json</p>
+
+<div class="highlight"><pre><code>"require" : {
+    "faisalman/simple-excel-php" : "0.3.*"
+}
+</code></pre></div>
+
+<p>If you want to try version 0.4 (still in <a href="https://github.com/faisalman/simple-excel-php/tree/develop">develop</a> branch) you can use</p>
+
+<div class="highlight"><pre><code>"require" : {
+    "faisalman/simple-excel-php" : "develop as 0.4.0-alpha"
+}
+</code></pre></div>
+
+<p>Or just load this library in your PHP project by including SimpleExcel.php</p>
+
+<div class="highlight"><pre><code>require_once('../your/project/directory/here/lib/SimpleExcel/SimpleExcel.php');</code></pre></div>
+
+<h2>Usage Example</h2>
+
+<h3>Prior version 0.4</h3>
+
+<pre><code>
+use SimpleExcel\SimpleExcel;
+
+$excel = new SimpleExcel('CSV');
+$excel->parser->loadFile('test.csv');
+
+echo $excel->parser->getCell(1, 1);
+
+$excel->convertTo('JSON');
+$excel->writer->addRow(array('add', 'another', 'row'));
+$excel->writer->saveFile('example');
+</code></pre>
+
+<h3>Version 0.4</h3>
+
+<h4>Get specific content from CSV file</h4>
+
+<pre><code>
+use SimpleExcel\SimpleExcel;
+
+$excel = new SimpleExcel();
+$excel->loadFile('/home/faisalman/Downloads/test.csv', 'CSV');  // Load CSV file
+
+print_r($excel->getWorksheet(1));                   // get array of all cells from worksheet 1
+print_r($excel->getWorksheet(1)->getColumn(2));     // get array of cells in column 2 from worksheet 1
+print_r($excel->getWorksheet(1)->getRecord(3));        // get array of cells in row 3 from worksheet 1
+print_r($excel->getWorksheet(1)->getCell(1, 2));    // get specific cell in row 1 column 2 from worksheet 1
+</code></pre>
+
+<h4>Convert from HTML table to JSON</h4>
+
+<pre><code>
+use SimpleExcel\SimpleExcel;
+
+$excel = new SimpleExcel();
+$excel->loadFile('/home/faisalman/Downloads/test.html', 'HTML');                // Load HTML file from server
+
+$excel->exportFile('/home/faisalman/Downloads/test.json', 'JSON');              // Save into a directory in running server
+$excel->exportFile('php://output', 'JSON', array('filename' => 'test.json'));   // Save into client (browser download)
+</code></pre>
+
+<h4>Load CSV with semicolon, export as CSV with comma</h4>
+
+<pre><code>
+use SimpleExcel\SimpleExcel;
+
+$excel = new SimpleExcel();
+$excel->loadFile('/home/faisalman/Downloads/test.csv', 'CSV', array('delimiter' => ';'));
+$excel->exportFile('/home/faisalman/Downloads/test2.csv', 'CSV', array('delimiter' => ','));
+</code></pre>
+
+<h4>Change some elements from XML file</h4>
+
+<pre><code>
+use SimpleExcel\SimpleExcel;
+use SimpleExcel\Spreadsheet\Worksheet;
+
+$excel = new SimpleExcel();
+$excel->loadFile('/home/faisalman/Downloads/test.xml', 'XML');              // Load XML file which contains 3 worksheets
+
+$excel->getWorksheet(1)->setRecord(9, array('9', 'Kota Bandung', '3'));     // Update row 9 in worksheet 1
+$excel->getWorksheet(1)->removeRecord(2);                                   // Delete row 2 from worksheet 1
+
+$excel->insertWorksheet(new Worksheet());                                   // Insert a new worksheet
+$excel->getWorksheet(4)->insertRecord(array('ID', 'Nama Kota', 'Kode'));    // Insert a new row to worksheet 4
+
+$excel->exportFile('/home/faisalman/Downloads/test2.xml', 'XML');           // Write document as another XML file
+</code></pre>
+
+<h4>Write a new XML file</h4>
+
+<pre><code>
+use SimpleExcel\SimpleExcel;
+use SimpleExcel\Spreadsheet\Worksheet;
+
+$worksheet = new Worksheet();                                       // Define a new worksheet
+$worksheet->insertRecord(array('ID', 'Nama Kota', 'Kode'));
+
+$excel = new SimpleExcel();
+$excel->insertWorksheet($worksheet);                                // Insert defined worksheet to excel document
+$excel->insertWorksheet(new Worksheet());                           // Insert a new blank worksheet
+$excel->getWorksheet(2)->insertRecord(array('1', '2', '3'));        // Insert a new row to that blank worksheet
+
+$excel->exportFile('/home/faisalman/Downloads/test.xml', 'XML');    // Write document as XML file
+</code></pre>
+
+<h2>Documentation</h2>
+
+<ul>
+    <li><a href="api/0.3/">v0.3</a></li>
+    <li><a href="api/0.4/">v0.4</a></li>
+</ul>
+
+<h2>Contributors</h2>
+
+<ul>
+<li><a href="https://github.com/faisalman">Faisal Salman</a></li>
+<li><a href="https://github.com/cristobal">Cristobal Dabed</a></li>
+<li><a href="https://github.com/McRip">Moritz Kröger</a></li>
+<li><a href="https://github.com/wjnerdery">Will Jaspers</a></li>
+</ul><h2>License</h2>
+
+<p>Copyright (c) 2011-2013 Faisalman &lt;<a href="mailto:fyzlman@gmail.com">fyzlman@gmail.com</a>&gt;</p>
+
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:</p>
+
+<p>The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.</p>
+
+<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.</p>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/faisalman/simple-excel-php/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/faisalman/simple-excel-php/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/faisalman/simple-excel-php"></a> is maintained by <a href="https://github.com/faisalman">faisalman</a>.</p>
+
+          <p>This page was generated by <a href="pages.github.com">GitHub Pages</a> using the Architect theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+  
+  </body>
+</html>
